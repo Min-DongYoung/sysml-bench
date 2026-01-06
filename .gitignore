@@ -1,0 +1,14 @@
+﻿# build artifacts
+build/
+*.exe
+*.out
+
+# benchmark outputs
+results/
+*.csv
+*.log
+*.png
+
+# OS/editor
+.vscode/
+.DS_Store
