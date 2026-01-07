@@ -16,11 +16,6 @@
 #include <string>
 #include <vector>
 
-#if __has_include(<filesystem>)
-#include <filesystem>
-namespace fs = std::filesystem;
-#endif
-
 #define CHECK_CUDA(call)                                                     \
   do {                                                                       \
     cudaError_t err__ = (call);                                              \
@@ -346,13 +341,13 @@ int main(int argc, char** argv) {
     std::cerr << "Invalid N/block/iters\n";
     return EXIT_FAILURE;
   }
+  if (args.warmup < 0) {
+    std::cerr << "Invalid warmup\n";
+    return EXIT_FAILURE;
+  }
 
   int warmup = args.warmup;
   std::string notes;
-  if (warmup < 1) {
-    warmup = 1;
-    notes = "warmup_forced=1";
-  }
 
   if (args.csv_path.empty()) {
     args.csv_path = "results_" + timestamp_for_filename() + ".csv";
@@ -581,13 +576,8 @@ int main(int argc, char** argv) {
 
   std::string ts = timestamp_utc_iso();
 
-  bool csv_exists = false;
-#if __has_include(<filesystem>)
-  csv_exists = fs::exists(args.csv_path);
-#else
   std::ifstream infile(args.csv_path);
-  csv_exists = infile.good();
-#endif
+  bool csv_exists = infile.good();
   if (csv_exists) {
     std::cerr << "CSV already exists: " << args.csv_path << "\n";
     return EXIT_FAILURE;
